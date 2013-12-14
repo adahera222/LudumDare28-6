@@ -3,12 +3,12 @@
 	<!-- NMML reference: https://gist.github.com/1763850 -->
 	
 	<!-- metadata, make sure 'package' is at least 3 segments (ie. com.mycompany.myproject) -->
-	<meta title="LudumDare28" package="" version="1.0.0" company="Jeremiah Goerdt aka CaptainKraft" />
+	<meta title="GameJolt" package="" version="1.0.0" company="Jeremiah Goerdt aka CaptainKraft" />
 	
 	<!-- output -->
-	<app main="Main" file="LudumDare28" path="bin" />
+	<app main="Main" file="GameJolt" path="bin" />
 	
-	<window background="#000000" fps="60" />
+	<window background="#FFFFFF" fps="60" />
 	<window width="800" height="600" unless="mobile" />
 	<window orientation="landscape" vsync="false" antialiasing="0" if="cpp" />
 	
@@ -21,7 +21,7 @@
 	<icon path="assets/openfl.svg" />
 	<assets path="assets"/>
 	
-	<!-- optimize output
-	<haxeflag name="-dce full" /> -->
+	<!-- optimize output -->
+	<haxeflag name="-dce std" if="haxe3" />
 	
 </project>

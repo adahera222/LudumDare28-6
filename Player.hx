@@ -11,7 +11,7 @@ import flash.geom.Vector3D;
 class Player extends Sprite{
 
     private var img:Bitmap;
-    private var center:Point;
+    private var loc:Point;
     private var isMoving = false;
     private var speed = 100;
     private var destination:Point;
@@ -23,15 +23,17 @@ class Player extends Sprite{
         img = new Bitmap(Assets.getBitmapData("assets/player.png"));
         addChild(img);
 
-        center = new Point(img.width / 2, img.height / 2);
+        loc = new Point(img.x, img.y);
     }
 
     private function changeDestination(){
-		var centerVec = new Vector3D(center.x, center.y, 0);
+		var locVec = new Vector3D(loc.x, loc.y, 0);
 		destination = path.pop();
+        destination.x *= Tile.WIDTH;
+        destination.y *= Tile.HEIGHT;
 		var destinationVec = new Vector3D(destination.x, destination.y, 0);
-		var tmp = Vector3D.distance(centerVec, destinationVec);
-		Actuate.tween(center, tmp / speed, {x:destination.x, y:destination.y}).ease(Linear.easeNone);
+		var tmp = Vector3D.distance(locVec, destinationVec);
+		Actuate.tween(loc, tmp / speed, {x:destination.x, y:destination.y}).ease(Linear.easeNone);
     }
 
     public function startMove(path:Array<Point>){
@@ -41,12 +43,21 @@ class Player extends Sprite{
         changeDestination();
     }
 
+    public function getLoc(){
+        return new Point(Math.floor(img.x / Tile.WIDTH), Math.floor(img.y / Tile.HEIGHT));
+    }
+
+    public function setLoc(newLoc:Point){
+        img.x = newLoc.x * Tile.WIDTH;
+        img.y = newLoc.y * Tile.HEIGHT;
+    }
+
     private function move(){
-		img.x = center.x - img.width / 2;
-		img.y = center.y - img.height / 2;
-		if (path.length > 0 && center.x == destination.x && center.y == destination.y) {
+		img.x = loc.x;
+		img.y = loc.y;
+		if (path.length > 0 && loc.x == destination.x && loc.y == destination.y) {
             changeDestination();
-		} else if(center.x == destination.x && center.y == destination.y){
+		} else if(loc.x == destination.x && loc.y == destination.y){
             isMoving = false;
         }
     }
