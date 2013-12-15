@@ -16,6 +16,7 @@ class Player extends Sprite{
     private var speed = 100;
     private var destination:Point;
     private var path:Array<Point>;
+    private var center:Point;
 
     public function new(){
         super();
@@ -24,6 +25,7 @@ class Player extends Sprite{
         addChild(img);
 
         loc = new Point(img.x, img.y);
+        center = new Point(loc.x + img.width / 2, loc.y + img.height / 2);
     }
 
     private function changeDestination(){
@@ -48,11 +50,13 @@ class Player extends Sprite{
     }
 
     public function setLoc(newLoc:Point){
-        img.x = newLoc.x * Tile.WIDTH;
-        img.y = newLoc.y * Tile.HEIGHT;
+        loc.x = newLoc.x * Tile.WIDTH;
+        loc.y = newLoc.y * Tile.HEIGHT;
     }
 
     private function move(){
+        center.x = loc.x + img.width / 2;
+        center.y = loc.y + img.height / 2;
 		img.x = loc.x;
 		img.y = loc.y;
 		if (path.length > 0 && loc.x == destination.x && loc.y == destination.y) {
@@ -64,5 +68,20 @@ class Player extends Sprite{
 
     public function update(){
         if(isMoving) move();
+
+        // check if player hits a specific tile
+        var xLoc = Math.floor(center.x / Tile.WIDTH);
+        var yLoc = Math.floor(center.y / Tile.HEIGHT);
+        var test = Std.int(yLoc * Main.WIDTH + xLoc);
+        var tile = Main.instance.level.getTile(test);
+        if(tile == Tile.WALL){
+            Actuate.stop(loc);
+            isMoving = false;
+        } else if(tile == Tile.PICKUP){
+            Main.instance.level.replaceTile(test, Tile.BG);
+        } else if(tile == Tile.EXIT){
+            Actuate.stop(loc);
+            Main.instance.level.changeMap(++Main.instance.level.id);
+        }
     }
 }
