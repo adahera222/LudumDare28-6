@@ -7,7 +7,8 @@ import openfl.Assets;
 
 class Level extends Sprite{
     public var id:Int;
-    private var maps:Array<Array<Int>>;
+    public var maps:Array<Array<Int>>;
+    public var origMaps:Array<Array<Int>>;
 
     public function new(id:Int){
         super();

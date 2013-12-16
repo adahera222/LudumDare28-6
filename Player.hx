@@ -11,12 +11,14 @@ import flash.geom.Vector3D;
 class Player extends Sprite{
 
     private var img:Bitmap;
-    private var loc:Point;
-    private var isMoving = false;
-    private var speed = 100;
+    public var loc:Point;
+    public var isMoving = false;
+    private var speed = 800;
     private var destination:Point;
     private var path:Array<Point>;
     private var center:Point;
+    public var pickups:Int;
+    public var moves:Int;
 
     public function new(){
         super();
@@ -26,6 +28,13 @@ class Player extends Sprite{
 
         loc = new Point(img.x, img.y);
         center = new Point(loc.x + img.width / 2, loc.y + img.height / 2);
+
+        reset(); 
+    }
+
+    public function reset(){
+        pickups = 0;
+        moves = 0;
     }
 
     private function changeDestination(){
@@ -42,7 +51,12 @@ class Player extends Sprite{
         path.reverse();
         this.path = path;
 		isMoving = true;
-        changeDestination();
+        if(path.length == 0) {
+            isMoving = false;
+            if(Main.instance.level.id < Main.instance.level.maps.length - 1){
+                Main.instance.level.changeMap(++Main.instance.level.id);
+            } else Main.instance.endGame();
+        } else changeDestination();
     }
 
     public function getLoc(){
@@ -52,6 +66,8 @@ class Player extends Sprite{
     public function setLoc(newLoc:Point){
         loc.x = newLoc.x * Tile.WIDTH;
         loc.y = newLoc.y * Tile.HEIGHT;
+        img.x = loc.x;
+        img.y = loc.y;
     }
 
     private function move(){
@@ -63,25 +79,31 @@ class Player extends Sprite{
             changeDestination();
 		} else if(loc.x == destination.x && loc.y == destination.y){
             isMoving = false;
+            reset();
         }
     }
 
     public function update(){
-        if(isMoving) move();
-
-        // check if player hits a specific tile
-        var xLoc = Math.floor(center.x / Tile.WIDTH);
-        var yLoc = Math.floor(center.y / Tile.HEIGHT);
-        var test = Std.int(yLoc * Main.WIDTH + xLoc);
-        var tile = Main.instance.level.getTile(test);
-        if(tile == Tile.WALL){
-            Actuate.stop(loc);
-            isMoving = false;
-        } else if(tile == Tile.PICKUP){
-            Main.instance.level.replaceTile(test, Tile.BG);
-        } else if(tile == Tile.EXIT){
-            Actuate.stop(loc);
-            Main.instance.level.changeMap(++Main.instance.level.id);
+        if(isMoving){
+            // check if player hits a specific tile
+            var xLoc = Math.floor(center.x / Tile.WIDTH);
+            var yLoc = Math.floor(center.y / Tile.HEIGHT);
+            var test = Std.int(yLoc * Main.WIDTH + xLoc);
+            var tile = Main.instance.level.getTile(test);
+            if(tile == Tile.WALL){
+                Actuate.stop(loc);
+                isMoving = false;
+                reset();
+            } else if(tile == Tile.PICKUP){
+                Main.instance.level.replaceTile(test, Tile.BG);
+                pickups++;
+            } else if(tile == Tile.EXIT){
+                Actuate.stop(loc);
+                isMoving = false;
+                Main.instance.addScore(pickups, moves);
+                reset();
+            }
+            move();
         }
     }
 }
